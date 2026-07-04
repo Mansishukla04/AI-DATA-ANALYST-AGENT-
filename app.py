@@ -90,20 +90,22 @@ question = st.text_input("Ask a question about your data")
 if st.button("Ask AI"):
 
     if question:
+      answer = ask_ai(question, df)
 
-        answer = ask_ai(question, df)
+    if answer is None:
+       st.error("No response received from the AI.")
+    elif "Answer:" in answer:
+       answer = answer.split("Answer:")[-1].strip()
 
-        if "Answer:" in answer:
-            answer = answer.split("Answer:")[-1].strip()
-
-        st.success(answer)
-
-        st.session_state.chat_history.append({
-            "question": question,
-            "answer": answer
-        })
-    else:
-        st.warning("Please enter a question.")
+    if answer:
+      st.success(answer)
+    st.session_state.chat_history.append({
+        "question": question,
+        "answer": answer
+    })
+       
+else:
+    st.warning("Please enter a question.")
 
 st.subheader("📜 Question History")
 

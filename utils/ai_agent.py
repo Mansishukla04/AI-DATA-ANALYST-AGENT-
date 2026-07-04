@@ -1,24 +1,34 @@
 import os
 from dotenv import load_dotenv
-from google import genai
+from groq import Groq
 
 load_dotenv()
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def ask_ai(question, dataframe):
 
     prompt = f"""
-    ...
-    """
+You are an AI Data Analyst.
 
-    try:
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt
-        )
+Dataset:
+{dataframe.to_string()}
 
-        return response.text
+Question:
+{question}
 
-    except Exception as e:
-        return f"⚠️ Gemini API Error:\n\n{e}"
+Instructions:
+- Return ONLY the final answer.
+- Do not explain your reasoning.
+- Do not show calculations.
+- Keep the answer within 2-3 lines.
+"""
+
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[
+            {"role": "user", "content": prompt}
+        ]
+    )
+
+    return response.choices[0].message.content
